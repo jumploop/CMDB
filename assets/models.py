@@ -188,85 +188,6 @@ class Software(models.Model):
         verbose_name_plural = "软件/系统"
 
 
-class IDC(models.Model):
-    """机房"""
-    name = models.CharField(max_length=64, unique=True, verbose_name="机房名称")
-    memo = models.CharField(max_length=128, blank=True, null=True, verbose_name='备注')
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = '机房'
-        verbose_name_plural = "机房"
-
-
-class Manufacturer(models.Model):
-    """厂商"""
-
-    name = models.CharField('厂商名称', max_length=64, unique=True)
-    telephone = models.CharField('支持电话', max_length=30, blank=True, null=True)
-    memo = models.CharField('备注', max_length=128, blank=True, null=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = '厂商'
-        verbose_name_plural = "厂商"
-
-
-class BusinessUnit(models.Model):
-    """业务线"""
-
-    parent_unit = models.ForeignKey('self', blank=True, null=True, related_name='parent_level',
-                                    on_delete=models.SET_NULL)
-    name = models.CharField('业务线', max_length=64, unique=True)
-    memo = models.CharField('备注', max_length=64, blank=True, null=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = '业务线'
-        verbose_name_plural = "业务线"
-
-
-class Contract(models.Model):
-    """合同"""
-
-    sn = models.CharField('合同号', max_length=128, unique=True)
-    name = models.CharField('合同名称', max_length=64)
-    memo = models.TextField('备注', blank=True, null=True)
-    price = models.IntegerField('合同金额')
-    detail = models.TextField('合同详细', blank=True, null=True)
-    start_day = models.DateField('开始日期', blank=True, null=True)
-    end_day = models.DateField('失效日期', blank=True, null=True)
-    license_num = models.IntegerField('license数量', blank=True, null=True)
-    c_day = models.DateField('创建日期', auto_now_add=True)
-    m_day = models.DateField('修改日期', auto_now=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = '合同'
-        verbose_name_plural = "合同"
-
-
-class Tag(models.Model):
-    """标签"""
-    name = models.CharField('标签名', max_length=32, unique=True)
-    c_day = models.DateField('创建日期', auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = '标签'
-        verbose_name_plural = "标签"
-
-
 class CPU(models.Model):
     """CPU组件"""
 
@@ -350,6 +271,85 @@ class NIC(models.Model):
         unique_together = ('asset', 'model', 'mac')  # 资产、型号和mac必须联合唯一。防止虚拟机中的特殊情况发生错误。
 
 
+class IDC(models.Model):
+    """机房"""
+    name = models.CharField(max_length=64, unique=True, verbose_name="机房名称")
+    memo = models.CharField(max_length=128, blank=True, null=True, verbose_name='备注')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = '机房'
+        verbose_name_plural = "机房"
+
+
+class Manufacturer(models.Model):
+    """厂商"""
+
+    name = models.CharField('厂商名称', max_length=64, unique=True)
+    telephone = models.CharField('支持电话', max_length=30, blank=True, null=True)
+    memo = models.CharField('备注', max_length=128, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = '厂商'
+        verbose_name_plural = "厂商"
+
+
+class BusinessUnit(models.Model):
+    """业务线"""
+
+    parent_unit = models.ForeignKey('self', blank=True, null=True, related_name='parent_level',
+                                    on_delete=models.CASCADE)
+    name = models.CharField('业务线名称', max_length=64, unique=True)
+    memo = models.CharField('备注', max_length=64, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = '业务线'
+        verbose_name_plural = "业务线"
+
+
+class Contract(models.Model):
+    """合同"""
+
+    sn = models.CharField('合同号', max_length=128, unique=True)
+    name = models.CharField('合同名称', max_length=64)
+    memo = models.TextField('备注', blank=True, null=True)
+    price = models.IntegerField('合同金额')
+    detail = models.TextField('合同详细', blank=True, null=True)
+    start_day = models.DateField('开始日期', blank=True, null=True)
+    end_day = models.DateField('失效日期', blank=True, null=True)
+    license_num = models.IntegerField('license数量', blank=True, null=True)
+    c_day = models.DateField('创建日期', auto_now_add=True)
+    m_day = models.DateField('修改日期', auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = '合同'
+        verbose_name_plural = "合同"
+
+
+class Tag(models.Model):
+    """标签"""
+    name = models.CharField('标签名', max_length=32, unique=True)
+    c_day = models.DateField('创建日期', auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = '标签'
+        verbose_name_plural = "标签"
+
+
 class EventLog(models.Model):
     """
     日志.
@@ -384,6 +384,7 @@ class EventLog(models.Model):
     class Meta:
         verbose_name = '事件纪录'
         verbose_name_plural = "事件纪录"
+
 
 class NewAssetApprovalZone(models.Model):
     """新资产待审批区"""
