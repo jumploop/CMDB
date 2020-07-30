@@ -301,3 +301,32 @@ class RAM(models.Model):
         unique_together = ('asset', 'slot')  # 同一资产下的内存，根据插槽的不同，必须唯一
 
 
+class Disk(models.Model):
+    """硬盘设备"""
+
+    disk_interface_type_choice = (
+        ('SATA', 'SATA'),
+        ('SAS', 'SAS'),
+        ('SCSI', 'SCSI'),
+        ('SSD', 'SSD'),
+        ('unknown', 'unknown'),
+    )
+
+    asset = models.ForeignKey('Asset', on_delete=models.CASCADE)
+    sn = models.CharField('硬盘SN号', max_length=128)
+    slot = models.CharField('所在插槽位', max_length=64, blank=True, null=True)
+    model = models.CharField('磁盘型号', max_length=128, blank=True, null=True)
+    manufacturer = models.CharField('磁盘制造商', max_length=128, blank=True, null=True)
+    capacity = models.FloatField('磁盘容量(GB)', blank=True, null=True)
+    interface_type = models.CharField('接口类型', max_length=16, choices=disk_interface_type_choice, default='unknown')
+
+    def __str__(self):
+        return '%s:  %s:  %s:  %sGB' % (self.asset.name, self.model, self.slot, self.capacity)
+
+    class Meta:
+        verbose_name = '硬盘'
+        verbose_name_plural = "硬盘"
+        unique_together = ('asset', 'sn')
+
+
+
