@@ -126,7 +126,7 @@ def get_ram_info():
                 if key == 'Size':
                     if v.strip() != "No Module Installed":
                         ram_item_to_dic['capacity'] = v.split()[0].strip()
-                        item_ram_size = round(v.split()[0])
+                        item_ram_size = round(float(v.split()[0]))
                     else:
                         ram_item_to_dic['capacity'] = 0
 
