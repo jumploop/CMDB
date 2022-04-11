@@ -27,16 +27,17 @@ class Win32Info(object):
     def collect(self):
         data = {
             'os_type': platform.system(),
-            'os_release': "%s %s  %s " % (platform.release(), platform.architecture()[0], platform.version()),
+            'os_release': f"{platform.release()} {platform.architecture()[0]}  {platform.version()} ",
             'os_distribution': 'Microsoft',
-            'asset_type': 'server'
+            'asset_type': 'server',
         }
 
+
         # 分别获取各种硬件信息
-        data.update(self.get_cpu_info())
+        data |= self.get_cpu_info()
         data.update(self.get_ram_info())
-        data.update(self.get_motherboard_info())
-        data.update(self.get_disk_info())
+        data |= self.get_motherboard_info()
+        data |= self.get_disk_info()
         data.update(self.get_nic_info())
         # 最后返回一个数据字典
         return data
@@ -46,18 +47,14 @@ class Win32Info(object):
         获取CPU的相关数据，这里只采集了三个数据，实际有更多，请自行选择需要的数据
         :return:
         """
-        data = {}
         cpu_lists = self.wmi_obj.Win32_Processor()
-        cpu_core_count = 0
-        for cpu in cpu_lists:
-            cpu_core_count += cpu.NumberOfCores
-
+        cpu_core_count = sum(cpu.NumberOfCores for cpu in cpu_lists)
         cpu_model = cpu_lists[0].Name  # CPU型号（所有的CPU型号都是一样的）
-        data["cpu_count"] = len(cpu_lists)  # CPU个数
-        data["cpu_model"] = cpu_model
-        data["cpu_core_count"] = cpu_core_count  # CPU总的核数
-
-        return data
+        return {
+            "cpu_count": len(cpu_lists),
+            "cpu_model": cpu_model,
+            "cpu_core_count": cpu_core_count,
+        }
 
     def get_ram_info(self):
         """
@@ -87,12 +84,12 @@ class Win32Info(object):
         """
         computer_info = self.wmi_obj.Win32_ComputerSystem()[0]
         system_info = self.wmi_obj.Win32_OperatingSystem()[0]
-        data = {}
-        data['manufacturer'] = computer_info.Manufacturer
-        data['model'] = computer_info.Model
-        data['wake_up_type'] = computer_info.WakeUpType
-        data['sn'] = system_info.SerialNumber
-        return data
+        return {
+            'manufacturer': computer_info.Manufacturer,
+            'model': computer_info.Model,
+            'wake_up_type': computer_info.WakeUpType,
+            'sn': system_info.SerialNumber,
+        }
 
     def get_disk_info(self):
         """
@@ -101,14 +98,17 @@ class Win32Info(object):
         """
         data = []
         for disk in self.wmi_obj.Win32_DiskDrive():  # 每块硬盘都要获取相应信息
-            disk_data = {}
             interface_choices = ["SAS", "SCSI", "SATA", "SSD"]
-            for interface in interface_choices:
-                if interface in disk.Model:
-                    disk_data['interface_type'] = interface
-                    break
-            else:
-                disk_data['interface_type'] = 'unknown'
+            disk_data = {
+                'interface_type': next(
+                    (
+                        interface
+                        for interface in interface_choices
+                        if interface in disk.Model
+                    ),
+                    'unknown',
+                )
+            }
 
             disk_data['slot'] = disk.Index
             disk_data['sn'] = disk.SerialNumber
@@ -127,10 +127,7 @@ class Win32Info(object):
         data = []
         for nic in self.wmi_obj.Win32_NetworkAdapterConfiguration():
             if nic.MACAddress is not None:
-                nic_data = {}
-                nic_data['mac'] = nic.MACAddress
-                nic_data['model'] = nic.Caption
-                nic_data['name'] = nic.Index
+                nic_data = {'mac': nic.MACAddress, 'model': nic.Caption, 'name': nic.Index}
                 if nic.IPAddress is not None:
                     nic_data['ip_address'] = nic.IPAddress[0]
                     nic_data['net_mask'] = nic.IPSubnet

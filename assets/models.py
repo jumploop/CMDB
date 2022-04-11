@@ -50,7 +50,7 @@ class Asset(models.Model):
     m_time = models.DateTimeField(auto_now=True, verbose_name='更新日期')
 
     def __str__(self):
-        return '<%s>  %s' % (self.get_asset_type_display(), self.name)
+        return f'<{self.get_asset_type_display()}>  {self.name}'
 
     class Meta:
         verbose_name = '资产总表'
@@ -85,7 +85,7 @@ class Server(models.Model):
     os_release = models.CharField('操作系统版本', max_length=64, blank=True, null=True)
 
     def __str__(self):
-        return '%s--%s--%s <sn:%s>' % (self.asset.name, self.get_sub_asset_type_display(), self.model, self.asset.sn)
+        return f'{self.asset.name}--{self.get_sub_asset_type_display()}--{self.model} <sn:{self.asset.sn}>'
 
     class Meta:
         verbose_name = '服务器'
@@ -107,7 +107,11 @@ class SecurityDevice(models.Model):
     model = models.CharField(max_length=128, default='未知型号', verbose_name='安全设备型号')
 
     def __str__(self):
-        return self.asset.name + "--" + self.get_sub_asset_type_display() + str(self.model) + " id:%s" % self.id
+        return (
+            f'{self.asset.name}--{self.get_sub_asset_type_display()}'
+            + str(self.model)
+            + f" id:{self.id}"
+        )
 
     class Meta:
         verbose_name = '安全设备'
@@ -129,7 +133,11 @@ class StorageDevice(models.Model):
     model = models.CharField(max_length=128, default='未知型号', verbose_name='存储设备型号')
 
     def __str__(self):
-        return self.asset.name + "--" + self.get_sub_asset_type_display() + str(self.model) + " id:%s" % self.id
+        return (
+            f'{self.asset.name}--{self.get_sub_asset_type_display()}'
+            + str(self.model)
+            + f" id:{self.id}"
+        )
 
     class Meta:
         verbose_name = '存储设备'
@@ -158,7 +166,7 @@ class NetworkDevice(models.Model):
     device_detail = models.TextField(null=True, blank=True, verbose_name="详细配置")
 
     def __str__(self):
-        return '%s--%s--%s <sn:%s>' % (self.asset.name, self.get_sub_asset_type_display(), self.model, self.asset.sn)
+        return f'{self.asset.name}--{self.get_sub_asset_type_display()}--{self.model} <sn:{self.asset.sn}>'
 
     class Meta:
         verbose_name = '网络设备'
@@ -181,7 +189,7 @@ class Software(models.Model):
                                verbose_name='软件/系统版本')
 
     def __str__(self):
-        return '%s--%s' % (self.get_sub_asset_type_display(), self.version)
+        return f'{self.get_sub_asset_type_display()}--{self.version}'
 
     class Meta:
         verbose_name = '软件/系统'
@@ -197,7 +205,7 @@ class CPU(models.Model):
     cpu_core_count = models.PositiveSmallIntegerField('CPU核数', default=1)
 
     def __str__(self):
-        return self.asset.name + ":   " + self.cpu_model
+        return f'{self.asset.name}:   {self.cpu_model}'
 
     class Meta:
         verbose_name = 'CPU'
@@ -215,7 +223,7 @@ class RAM(models.Model):
     capacity = models.IntegerField('内存大小(GB)', blank=True, null=True)
 
     def __str__(self):
-        return '%s: %s: %s: %s' % (self.asset.name, self.model, self.slot, self.capacity)
+        return f'{self.asset.name}: {self.model}: {self.slot}: {self.capacity}'
 
     class Meta:
         verbose_name = '内存'
@@ -243,7 +251,7 @@ class Disk(models.Model):
     interface_type = models.CharField('接口类型', max_length=16, choices=disk_interface_type_choice, default='unknown')
 
     def __str__(self):
-        return '%s:  %s:  %s:  %sGB' % (self.asset.name, self.model, self.slot, self.capacity)
+        return f'{self.asset.name}:  {self.model}:  {self.slot}:  {self.capacity}GB'
 
     class Meta:
         verbose_name = '硬盘'
@@ -263,7 +271,7 @@ class NIC(models.Model):
     bonding = models.CharField('绑定地址', max_length=64, blank=True, null=True)
 
     def __str__(self):
-        return '%s:  %s:  %s' % (self.asset.name, self.model, self.mac)
+        return f'{self.asset.name}:  {self.model}:  {self.mac}'
 
     class Meta:
         verbose_name = '网卡'
